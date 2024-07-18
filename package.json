@@ -1,0 +1,23 @@
+{
+  "name": "namespace-sdk",
+  "version": "1.0.0",
+  "description": "A library for interacting with namespace contracts and apis",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "tsc": "^2.0.4",
+    "typescript": "^5.5.3",
+    "viem": "^2.17.4"
+  },
+  "scripts": {
+    "build": "rimraf ./dist && npx tsc",
+    "start": "node dist/index.js"
+  },
+  "files": [
+    "/dist"
+  ],
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  }
+}
