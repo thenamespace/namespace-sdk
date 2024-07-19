@@ -5,6 +5,10 @@
     "declaration": true,
     "outDir": "./dist",
     "resolveJsonModule": true,
+    "strict": true,          
+    "esModuleInterop": true, 
+    "skipLibCheck": true,  
+    "forceConsistentCasingInFileNames": true 
   },
   "include": [
     "src/**/*"

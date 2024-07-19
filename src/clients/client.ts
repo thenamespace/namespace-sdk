@@ -1,13 +1,13 @@
 import {
   Account,
   Address,
-  createWalletClient,
   Hash,
   keccak256,
   toHex,
 } from "viem";
 import { BackendAPI, Mode } from "../env";
 import {
+  L2Chain,
   Listing,
   MainChain,
   MintRequest,
@@ -34,13 +34,13 @@ export interface INamespaceClient {
     listing: Listing,
     subnameLabel: string,
     minterAddress: Address
-  );
+  ):Promise<SimulateMintResponse>;
   getMintTransactionParameters(
     listing: Listing,
     mintRequest: MintRequest
   ): Promise<MintTransactionParameters> 
-  isSubnameAvailable(listing: Listing, subnameLabel: string);
-  generateAuthToken(principal: Address, signingFunction: SignTypedDataFunction, signingMessage?: string);
+  isSubnameAvailable(listing: Listing, subnameLabel: string): Promise<boolean>;
+  generateAuthToken(principal: Address, signingFunction: SignTypedDataFunction, signingMessage?: string): Promise<AuthTokenResponse>;
 }
 
 export interface NamespaceClientProperties {
@@ -147,7 +147,7 @@ class NamespaceClient implements INamespaceClient {
       mintRequest.token
     );
 
-    let mintRecords: SetRecordsRequest;
+    let mintRecords: SetRecordsRequest | undefined;
     if (mintRequest.records) {
       mintRecords = {
         addresses: mintRequest.records.addresses || [],
@@ -171,13 +171,13 @@ class NamespaceClient implements INamespaceClient {
         mainNetwork: listing.network,
         owner: subnameOwner,
         parentLabel: listing.label,
-        tokenNetwork: listing.tokenNetwork,
+        tokenNetwork: listing.tokenNetwork as L2Chain,
       },
       mintRequest.minterAddress,
       mintRequest.token
     );
 
-    let mintRecords: SetRecordsRequest;
+    let mintRecords: SetRecordsRequest | undefined;
     if (mintRequest.records) {
       mintRecords = {
         addresses: mintRequest.records.addresses || [],
@@ -189,7 +189,7 @@ class NamespaceClient implements INamespaceClient {
 
     return this.web3Actions.getL2MintTransactionParams(
       params,
-      listing.tokenNetwork,
+      listing.tokenNetwork as L2Chain,
       mintRecords
     );
   }
