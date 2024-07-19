@@ -24,26 +24,26 @@ import { L2Chain, MainChain } from "./types";
 import {
   L1MintParamsResponse,
   L2MintParamsResponse,
+  MintTransactionParameters,
   SetRecordsRequest,
 } from "./types/minting";
 import * as L2_CONTROLLER_ABI from "../web3/abi/l2-controller-abi.json";
 import * as L1_MINT_CONTROLLER from "../web3/abi/l1-mint-controller-abi.json";
-import { AuthTokenMessage, AuthTypedData } from "./types/auth";
 
 export interface INamespaceWeb3Actions {
-  mintL2Subname(
+  getL2MintTransactionParams(
     params: L2MintParamsResponse,
     l2Chain: L2Chain,
     records?: SetRecordsRequest
-  ): Promise<Hash>;
-  mintL1Subname(
+  ): Promise<MintTransactionParameters>;
+  getL1MintTransactionParams(
     params: L1MintParamsResponse,
     mainChain: MainChain,
     records?: SetRecordsRequest
-  ): Promise<Hash>;
+  ): Promise<MintTransactionParameters>;
+  
   isL1SubnameAvailable(fullName: string, chainId: number): Promise<boolean>;
   isL2SubnameAvailable(fullName: string, chainId: number): Promise<boolean>;
-  signAuthMessage(message: AuthTokenMessage): Promise<Hash> ;
 }
 
 interface CreateWeb3ActionOpts {
@@ -56,11 +56,9 @@ interface CreateWeb3ActionOpts {
 class Web3Actions implements INamespaceWeb3Actions {
   
   private publicClient: any
-  private walletClient: any
   
   constructor(
     private readonly chain: Chain,
-    private readonly walletAccount?: Account,
     private readonly rpcUrl?: string,
     private readonly mintSource?: string
   ) {
@@ -68,15 +66,6 @@ class Web3Actions implements INamespaceWeb3Actions {
       transport: http(this.rpcUrl),
       chain: this.chain
     })
-
-    if (this.walletAccount) {
-      this.walletClient = createWalletClient({
-        transport: http(this.rpcUrl),
-        account: walletAccount,
-        chain: this.chain
-      })
-    }
-
   }
 
   public async isL1SubnameAvailable(
@@ -142,15 +131,11 @@ class Web3Actions implements INamespaceWeb3Actions {
     });
   }
 
-  public async mintL2Subname(
+  public async getL2MintTransactionParams(
     params: L2MintParamsResponse,
     l2Chain: L2Chain,
     records?: SetRecordsRequest
-  ) {
-
-    if (this.isReadOnly()) {
-      throw Error("Wallet account not connected, cannot perform write operation.")
-    }
+  ): Promise<MintTransactionParameters> {
 
     const { controller } = getL2ChainContracts(l2Chain);
     const { parameters: mintParameters } = params;
@@ -174,18 +159,23 @@ class Web3Actions implements INamespaceWeb3Actions {
       value: totalPrice,
     });
 
-    return this.getWalletClient().writeContract(request);
+    const txParams: MintTransactionParameters = {
+      abi: request.abi,
+      functionName: request.functionName,
+      args: request.args,
+      contractAddress: request.address,
+      value: request.value,
+      chain: this.chain
+    }
+    
+    return txParams;
   }
 
-  public async mintL1Subname(
+  public async getL1MintTransactionParams(
     params: L1MintParamsResponse,
     mainChain: MainChain,
     records?: SetRecordsRequest
-  ): Promise<Hash> {
-
-    if (this.isReadOnly()) {
-      throw Error("Wallet account not connected, cannot perform write operation.")
-    }
+  ): Promise<MintTransactionParameters> {
 
     const { mintController } = getMainChainContracts(mainChain);
     const { parameters: mintParameters, signature } = params;
@@ -217,24 +207,17 @@ class Web3Actions implements INamespaceWeb3Actions {
       })
       mintRequest = request;
     }
-    return this.getWalletClient().writeContract(mintRequest);
-  }
 
-  public async signAuthMessage(message: AuthTokenMessage): Promise<Hash> {
-
-    if (this.isReadOnly()) {
-      throw Error("Wallet account required for generating token")
+    return {
+      abi: mintRequest.abi,
+      functionName: mintRequest.functionName,
+      args: mintRequest.args,
+      contractAddress: mintRequest.address,
+      value: mintRequest.value,
+      chain: this.chain
     }
-
-    const signature = await this.getWalletClient().signTypedData({
-      //@ts-ignore
-      message: message,
-      types: AuthTypedData.Types,
-      domain: AuthTypedData.Domain,
-      primaryType: "SignIn"
-    })
-    return signature;
   }
+
 
   private getMintSource() {
     return this.mintSource || "namespace-sdk";
@@ -290,20 +273,12 @@ class Web3Actions implements INamespaceWeb3Actions {
     return data;
   }
 
-  private isReadOnly = () => {
-    return !this.walletClient
-  }
-
   private getPublicClient = (): PublicClient => {
     return this.publicClient;
   }
 
-  private getWalletClient = (): WalletClient => {
-    return this.walletClient;
-  }
 }
 
-
 export function createWeb3Actions(opts: CreateWeb3ActionOpts): INamespaceWeb3Actions {
-  return new Web3Actions(opts.chain, opts.walletAccount, opts.rpcUrl, opts.mintSource);
+  return new Web3Actions(opts.chain, opts.rpcUrl, opts.mintSource);
 }

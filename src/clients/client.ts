@@ -1,6 +1,7 @@
 import {
   Account,
   Address,
+  createWalletClient,
   Hash,
   keccak256,
   toHex,
@@ -10,6 +11,7 @@ import {
   Listing,
   MainChain,
   MintRequest,
+  MintTransactionParameters,
   SetRecordsRequest,
   SimulateMintResponse,
   SupportedChain,
@@ -17,12 +19,14 @@ import {
 import { createApiActions, INamespaceApiActions } from "./api-actions";
 import { createWeb3Actions, INamespaceWeb3Actions } from "./web3-actions";
 import { getChain, getChainName } from "../web3";
-import { base, mainnet } from "viem/chains";
+import { mainnet } from "viem/chains";
 import {
   AuthTokenMessage,
   AuthTokenRequest,
   AuthTokenResponse,
 } from "./types/auth";
+
+type SignTypedDataFunction = ({message}: {message: any}) => Hash | Promise<Hash> 
 
 export interface INamespaceClient {
   getListedName(ensName: string, chainId?: number): Promise<Listing>;
@@ -31,9 +35,12 @@ export interface INamespaceClient {
     subnameLabel: string,
     minterAddress: Address
   );
-  mintSubname(listing: Listing, mintRequest: MintRequest): Promise<Hash>;
+  getMintTransactionParameters(
+    listing: Listing,
+    mintRequest: MintRequest
+  ): Promise<MintTransactionParameters> 
   isSubnameAvailable(listing: Listing, subnameLabel: string);
-  generateAuthToken(principal: Address, signingMessage?: string);
+  generateAuthToken(principal: Address, signingFunction: SignTypedDataFunction, signingMessage?: string);
 }
 
 export interface NamespaceClientProperties {
@@ -53,10 +60,11 @@ class NamespaceClient implements INamespaceClient {
     this.apiActions = createApiActions(backendApi);
     this.web3Actions = this.setupWeb3Actions();
   }
-
+ 
   public async generateAuthToken(
     principal: Address,
-    signingMessage: string
+    signTypedDataFunction: SignTypedDataFunction,
+    signingMessage?: string,
   ): Promise<AuthTokenResponse> {
     const message: AuthTokenMessage = {
       app: this.opts.mintSource || "namespace-sdk",
@@ -66,7 +74,7 @@ class NamespaceClient implements INamespaceClient {
       principal,
     };
 
-    const signature = await this.web3Actions.signAuthMessage(message);
+    const signature = await signTypedDataFunction(message);
 
     const request: AuthTokenRequest = {
       message: message,
@@ -111,22 +119,22 @@ class NamespaceClient implements INamespaceClient {
     return this.apiActions.getListedName(ensName, chainName as MainChain);
   }
 
-  public async mintSubname(
+  public async getMintTransactionParameters(
     listing: Listing,
     mintRequest: MintRequest
-  ): Promise<Hash> {
+  ): Promise<MintTransactionParameters> {
   
     this.ensureValidChainForListing(listing);
     if (listing.listingType === "l2") {
-      return this.mintL2Subname(listing, mintRequest);
+      return this.l2MintParameters(listing, mintRequest);
     }
-    return this.mintL1Subname(listing, mintRequest);
+    return this.l1MintParameters(listing, mintRequest);
   }
 
-  private async mintL1Subname(
+  private async l1MintParameters(
     listing: Listing,
     mintRequest: MintRequest
-  ): Promise<Hash> {
+  ): Promise<MintTransactionParameters> {
     const subnameOwner = mintRequest.subnameOwner || mintRequest.minterAddress;
     const params = await this.apiActions.getMintingL1Parameters(
       {
@@ -149,13 +157,13 @@ class NamespaceClient implements INamespaceClient {
       };
     }
 
-    return this.web3Actions.mintL1Subname(params, listing.network, mintRecords);
+    return this.web3Actions.getL1MintTransactionParams(params, listing.network, mintRecords);
   }
 
-  private async mintL2Subname(
+  private async l2MintParameters(
     listing: Listing,
     mintRequest: MintRequest
-  ): Promise<Hash> {
+  ): Promise<MintTransactionParameters> {
     const subnameOwner = mintRequest.subnameOwner || mintRequest.minterAddress;
     const params = await this.apiActions.getMintingL2Parameters(
       {
@@ -179,7 +187,7 @@ class NamespaceClient implements INamespaceClient {
       };
     }
 
-    return this.web3Actions.mintL2Subname(
+    return this.web3Actions.getL2MintTransactionParams(
       params,
       listing.tokenNetwork,
       mintRecords

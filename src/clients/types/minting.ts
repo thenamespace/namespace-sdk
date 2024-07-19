@@ -1,4 +1,4 @@
-import { Address, Hash } from "viem";
+import { Abi, Address, Chain, Hash } from "viem";
 import { L2Chain, MainChain } from "./web3";
 
 export interface L1MintParamsRequest {
@@ -105,4 +105,13 @@ export interface TextRecord {
 export interface AddressRecord {
   address: string;
   coinType: number;
+}
+
+export interface MintTransactionParameters {
+  abi: Abi,
+  contractAddress: Address
+  functionName: string
+  args: any
+  value: bigint
+  chain: Chain
 }
