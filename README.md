@@ -45,6 +45,7 @@ Minting ENS subnames requires a couple of steps.
 First, we would need to have an ENS name which is listed on Namespace platform. To do so, visit our [Platform](https://app.namespace.tech) and check 
 [Manager](https://docs.namespace.tech/namespace-platform/manager)
 
+For testing purposes, you can use "namespace-sdk.eth" on Sepolia chain.
 ## 2. Generate minting parameters
 
 After we list ENS name, our platform allows minting subnames under it. We can use a library to check for subname availability and to generate a mint transaction parameters.
