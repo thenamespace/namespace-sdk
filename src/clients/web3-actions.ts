@@ -17,7 +17,7 @@ import {
 import {
   getChainName,
   getEnsContracts,
-  getL2ChainContracts,
+  getL2ChainContractsLegacy,
   getMainChainContracts,
 } from "../web3";
 import { L2Chain, MainChain } from "./types";
@@ -104,7 +104,7 @@ class Web3Actions implements INamespaceWeb3Actions {
       throw new Error("Unsupported chainId: " + chainId);
     }
 
-    const l2Contracts = getL2ChainContracts(chainName as L2Chain);
+    const l2Contracts = getL2ChainContractsLegacy(chainName as L2Chain);
 
     if (!l2Contracts) {
       throw new Error(
@@ -137,7 +137,7 @@ class Web3Actions implements INamespaceWeb3Actions {
     records?: SetRecordsRequest
   ): Promise<MintTransactionParameters> {
 
-    const { controller } = getL2ChainContracts(l2Chain);
+    const { controller } = getL2ChainContractsLegacy(l2Chain);
     const { parameters: mintParameters } = params;
 
     let resolverData: Hash[] = [];
