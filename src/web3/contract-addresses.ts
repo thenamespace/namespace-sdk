@@ -11,8 +11,8 @@ export const isLegacyName = (name: string) => {
     return legacy.includes(name);
   }
 
-  if (split.length === 3) {
-    const parent = `${split[1]}.${split[2]}`;
+  if (split.length > 3) {
+    const parent = `${split[split.length - 2]}.${split[split.length - 1]}`;
     return legacy.includes(parent);
   }
 
@@ -57,9 +57,9 @@ const MainChainAddresses: Record<MainChain, NamespaceL1Contracts> = {
 
 const L2ChainAddresses: Record<L2Chain, NamespaceL2Contracts>  = {
   base: {
-    controller: "0x27b792d933A905c9BB53b139898d0d79654BE2Ab",
-    resolver: "0xA1f1eE95B22bBfFd5cB72f70573B8c3A762a4Ed8",
-    emitter: "0xd7836B047dD66622b7AAB743E88Dd158dDc23Dc1",
+    controller: "0x3352F10F3737988A86715c2Cf888603bD3370146",
+    resolver: "0x5c658a26D6e094A180e494FD79B25bC2E6652B9A",
+    emitter: "0x560d5b159c46d219e45affa47b2b9fFdecf6c31D",
     registryResolver: "0xBB49Cd94f5cd37bbf19aD9eab5024426A56674e7"
   },
   // currently, L2 subnames are only supported for Base chain
@@ -125,3 +125,5 @@ export const getL2ChainContractsLegacy = (chainName: L2Chain) => {
 export const getEnsContracts = (chainName: MainChain) => {
   return EnsContracts[chainName];
 };
+
+
