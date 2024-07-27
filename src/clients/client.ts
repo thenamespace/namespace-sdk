@@ -3,6 +3,7 @@ import {
   Address,
   Hash,
   keccak256,
+  namehash,
   toHex,
 } from "viem";
 import { BackendAPI, Mode } from "../env";
@@ -165,13 +166,16 @@ class NamespaceClient implements INamespaceClient {
     mintRequest: MintRequest
   ): Promise<MintTransactionParameters> {
     const subnameOwner = mintRequest.subnameOwner || mintRequest.minterAddress;
+
+    const parentNode = namehash(listing.fullName);
     const params = await this.apiActions.getMintingL2Parameters(
       {
         label: mintRequest.subnameLabel,
         mainNetwork: listing.network,
         owner: subnameOwner,
-        parentLabel: listing.label,
-        tokenNetwork: listing.tokenNetwork as L2Chain,
+        parentNode: parentNode,
+        registryNetwork: listing.registryNetwork as L2Chain,
+        parentLabel: listing.label
       },
       mintRequest.minterAddress,
       mintRequest.token
@@ -189,7 +193,7 @@ class NamespaceClient implements INamespaceClient {
 
     return this.web3Actions.getL2MintTransactionParams(
       params,
-      listing.tokenNetwork as L2Chain,
+      listing.registryNetwork as L2Chain,
       mintRecords
     );
   }
@@ -206,7 +210,7 @@ class NamespaceClient implements INamespaceClient {
   private getRequiredChainForListing = (listing: Listing): number => {
     let requiredChainName: SupportedChain = listing.network;
     if (listing.listingType === "l2") {
-      requiredChainName = listing.tokenNetwork as SupportedChain;
+      requiredChainName = listing.registryNetwork as SupportedChain;
     }
     const requiredChain = getChain(requiredChainName);
     return requiredChain.id;

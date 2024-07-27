@@ -16,7 +16,7 @@ export interface Listing {
     node: string;
     network: MainChain;
     listingType?: ListingType
-    tokenNetwork?: L2Chain 
+    registryNetwork?: L2Chain 
 }
 
 
