@@ -29,22 +29,23 @@ export interface L1MintParamsResponse {
 
 export interface L2MintParamsRequest {
   mainNetwork: MainChain;
-  tokenNetwork: L2Chain;
-  parentLabel: string;
+  registryNetwork: L2Chain;
+  parentNode: string;
   label: string;
   owner: string;
-  expiry?: number;
+  expiryInYears?: number;
+  parentLabel: string
 }
 
 export interface L2MintParameters {
   label: string;
-  parentLabel: string;
-  resolver: Address;
+  parentNode: string;
   owner: string;
   expiry: number;
   price: string;
   fee: string;
   paymentReceiver: Address;
+  nonce: string
 }
 
 export interface L2MintParamsResponse {

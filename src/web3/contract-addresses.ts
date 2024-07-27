@@ -55,12 +55,18 @@ const MainChainAddresses: Record<MainChain, NamespaceL1Contracts> = {
   },
 };
 
+const OffchainResolvers: Record<L2Chain, Address> = {
+  arbitrum: zeroAddress,
+  optimism: zeroAddress,
+  base: "0xaE04a09CF2c408803AC7718e3dE22ac346a05B58"
+}
+
 const L2ChainAddresses: Record<L2Chain, NamespaceL2Contracts>  = {
   base: {
-    controller: "0x3352F10F3737988A86715c2Cf888603bD3370146",
-    resolver: "0x5c658a26D6e094A180e494FD79B25bC2E6652B9A",
-    emitter: "0x560d5b159c46d219e45affa47b2b9fFdecf6c31D",
-    registryResolver: "0xBB49Cd94f5cd37bbf19aD9eab5024426A56674e7"
+    controller: '0xC880B6BAe15f4905c160218f37Da1876E5A6De5B',
+    emitter: '0xC3d34D62762E84f2eb1F7d7b8D7D9ecDFC747d1c',
+    registryResolver: '0x72d229708C3C1fAa27127Ca7453dF32820a7cf73',
+    resolver: '0xCbf89f3a4e982753AC883F6592b9D3b9E7E1C27a',
   },
   // currently, L2 subnames are only supported for Base chain
   optimism: {
@@ -126,4 +132,7 @@ export const getEnsContracts = (chainName: MainChain) => {
   return EnsContracts[chainName];
 };
 
+export const getOffchainResolverForL2Network = (chainName: L2Chain) => {
+  return OffchainResolvers[chainName];
+}
 

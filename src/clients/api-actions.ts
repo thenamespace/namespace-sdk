@@ -121,7 +121,7 @@ class NamespaceApiActions implements INamespaceApiActions {
     if (result.requiresVerifiedMinter) {
       return axios
         .post<L2MintParamsResponse>(
-          `${this.backendApi}/api/v1/mint/l2/verified`,
+          `${this.backendApi}/api/v2/mint/l2/verified`,
           params,
           {
             headers: {
@@ -133,7 +133,7 @@ class NamespaceApiActions implements INamespaceApiActions {
     }
 
     return axios
-      .post<L2MintParamsResponse>(`${this.backendApi}/api/v1/mint/l2`, params)
+      .post<L2MintParamsResponse>(`${this.backendApi}/api/v2/mint/l2`, params)
       .then((res) => res.data);
   }
 

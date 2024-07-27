@@ -3,7 +3,6 @@ import {
   Address,
   Chain,
   createPublicClient,
-  createWalletClient,
   encodeFunctionData,
   Hash,
   http,
@@ -11,7 +10,6 @@ import {
   parseAbi,
   PublicClient,
   toHex,
-  WalletClient,
   zeroAddress,
 } from "viem";
 import {
