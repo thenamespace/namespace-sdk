@@ -15,7 +15,7 @@ import {
 import {
   getChainName,
   getEnsContracts,
-  getL2ChainContractsLegacy,
+  getL2ChainContracts,
   getMainChainContracts,
 } from "../web3";
 import { L2Chain, MainChain } from "./types";
@@ -25,8 +25,8 @@ import {
   MintTransactionParameters,
   SetRecordsRequest,
 } from "./types/minting";
-import * as L2_CONTROLLER_ABI from "../web3/abi/l2-controller-abi.json";
-import * as L1_MINT_CONTROLLER from "../web3/abi/l1-mint-controller-abi.json";
+import L2_CONTROLLER_ABI from "../web3/abi/l2-controller-abi.json";
+import L1_MINT_CONTROLLER from "../web3/abi/l1-mint-controller-abi.json";
 
 export interface INamespaceWeb3Actions {
   getL2MintTransactionParams(
@@ -102,7 +102,7 @@ class Web3Actions implements INamespaceWeb3Actions {
       throw new Error("Unsupported chainId: " + chainId);
     }
 
-    const l2Contracts = getL2ChainContractsLegacy(chainName as L2Chain);
+    const l2Contracts = getL2ChainContracts(chainName as L2Chain);
 
     if (!l2Contracts) {
       throw new Error(
@@ -112,21 +112,18 @@ class Web3Actions implements INamespaceWeb3Actions {
 
     const splittedValue = fullName.split(".");
 
-    if (splittedValue.length !== 3) {
-      throw new Error("");
+    if (splittedValue.length < 3) {
+      throw new Error("Invalid subname:" + fullName);
     }
-
-    const label = splittedValue[0];
-    const parentName = `${splittedValue[1]}.${splittedValue[2]}`;
 
     return await this.publicClient.readContract({
       abi: parseAbi([
-        "function isNodeAvailable(string label, bytes32 node) external view returns (bool)",
+        "function owner(bytes32 node) external view returns (address)",
       ]),
       address: l2Contracts.controller,
-      functionName: "isNodeAvailable",
-      args: [label, namehash(parentName)],
-    });
+      functionName: "owner",
+      args: [namehash(fullName)],
+    }) === zeroAddress;
   }
 
   public async getL2MintTransactionParams(
@@ -135,7 +132,7 @@ class Web3Actions implements INamespaceWeb3Actions {
     records?: SetRecordsRequest
   ): Promise<MintTransactionParameters> {
 
-    const { controller } = getL2ChainContractsLegacy(l2Chain);
+    const { controller } = getL2ChainContracts(l2Chain);
     const { parameters: mintParameters } = params;
 
     let resolverData: Hash[] = [];
@@ -143,15 +140,22 @@ class Web3Actions implements INamespaceWeb3Actions {
       resolverData = this.convertRecordsToResolverData(records);
     }
 
+    console.log(mintParameters)
+    //@ts-ignore
+    console.log(L2_CONTROLLER_ABI, "ABI")
+
     const totalPrice =
       BigInt(mintParameters.fee) + BigInt(mintParameters.price);
     const { request } = await this.publicClient.simulateContract({
+
+      //@ts-ignore
       abi: L2_CONTROLLER_ABI,
       address: controller,
       functionName: "mint",
       args: [
-        { ...params.parameters, resolverData },
+        params.parameters,
         params.signature,
+        resolverData,
         toHex(this.getMintSource()),
       ],
       value: totalPrice,

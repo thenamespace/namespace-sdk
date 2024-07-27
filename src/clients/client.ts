@@ -174,7 +174,7 @@ class NamespaceClient implements INamespaceClient {
         mainNetwork: listing.network,
         owner: subnameOwner,
         parentNode: parentNode,
-        registryNetwork: listing.tokenNetwork as L2Chain,
+        registryNetwork: listing.registryNetwork as L2Chain,
         parentLabel: listing.label
       },
       mintRequest.minterAddress,
@@ -193,7 +193,7 @@ class NamespaceClient implements INamespaceClient {
 
     return this.web3Actions.getL2MintTransactionParams(
       params,
-      listing.tokenNetwork as L2Chain,
+      listing.registryNetwork as L2Chain,
       mintRecords
     );
   }
@@ -210,7 +210,7 @@ class NamespaceClient implements INamespaceClient {
   private getRequiredChainForListing = (listing: Listing): number => {
     let requiredChainName: SupportedChain = listing.network;
     if (listing.listingType === "l2") {
-      requiredChainName = listing.tokenNetwork as SupportedChain;
+      requiredChainName = listing.registryNetwork as SupportedChain;
     }
     const requiredChain = getChain(requiredChainName);
     return requiredChain.id;
