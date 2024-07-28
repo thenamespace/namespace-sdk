@@ -125,7 +125,7 @@ class Web3Actions implements INamespaceWeb3Actions {
         "function subnodeOwner(bytes32 node, bytes32 parentNode) external view returns (address)",
       ]),
       address: l2Contracts.registryResolver,
-      functionName: "subnameOwner",
+      functionName: "subnodeOwner",
       args: [subnameNode, parentNode],
     }) === zeroAddress;
   }
