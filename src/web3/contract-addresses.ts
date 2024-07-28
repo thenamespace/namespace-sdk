@@ -63,10 +63,10 @@ const OffchainResolvers: Record<L2Chain, Address> = {
 
 const L2ChainAddresses: Record<L2Chain, NamespaceL2Contracts>  = {
   base: {
-    controller: '0xC880B6BAe15f4905c160218f37Da1876E5A6De5B',
-    emitter: '0xC3d34D62762E84f2eb1F7d7b8D7D9ecDFC747d1c',
-    registryResolver: '0x72d229708C3C1fAa27127Ca7453dF32820a7cf73',
-    resolver: '0xCbf89f3a4e982753AC883F6592b9D3b9E7E1C27a',
+    controller: '0x5CA900c6142690e2959dED6130fD7821b1c3CE71',
+    emitter: '0xe0b17133218A14F45aab325283688477B0ef1826',
+    registryResolver: '0x1B79474e969A5f08Bc23fA2a33bba22A0D90573c',
+    resolver: '0x10437ef184A4Cef9260c92466FbcCe80689E28F1',
   },
   // currently, L2 subnames are only supported for Base chain
   optimism: {

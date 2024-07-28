@@ -111,18 +111,22 @@ class Web3Actions implements INamespaceWeb3Actions {
     }
 
     const splittedValue = fullName.split(".");
-
     if (splittedValue.length < 3) {
       throw new Error("Invalid subname:" + fullName);
     }
 
+    const valueLen = splittedValue.length;
+    const parentName = `${splittedValue[valueLen - 2]}.${splittedValue[valueLen - 1]}`
+    const parentNode = namehash(parentName);
+    const subnameNode = namehash(fullName);
+
     return await this.publicClient.readContract({
       abi: parseAbi([
-        "function owner(bytes32 node) external view returns (address)",
+        "function subnodeOwner(bytes32 node, bytes32 parentNode) external view returns (address)",
       ]),
-      address: l2Contracts.controller,
+      address: l2Contracts.registryResolver,
       functionName: "owner",
-      args: [namehash(fullName)],
+      args: [subnameNode, parentNode],
     }) === zeroAddress;
   }
 
@@ -139,10 +143,6 @@ class Web3Actions implements INamespaceWeb3Actions {
     if (records) {
       resolverData = this.convertRecordsToResolverData(records);
     }
-
-    console.log(mintParameters)
-    //@ts-ignore
-    console.log(L2_CONTROLLER_ABI, "ABI")
 
     const totalPrice =
       BigInt(mintParameters.fee) + BigInt(mintParameters.price);
