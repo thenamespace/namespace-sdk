@@ -253,9 +253,9 @@ class Web3Actions implements INamespaceWeb3Actions {
       } else {
         const encodedAddrFunction = encodeFunctionData({
           abi: parseAbi([
-            "function setAddress(bytes32 node, uint256 coinType, bytes newAddress)",
+            "function setAddr(bytes32 node, uint256 coinType, bytes newAddress)",
           ]),
-          functionName: "setAddress",
+          functionName: "setAddr",
           args: [subnameNode, BigInt(addr.coinType), addr.address as Hash],
         });
         data.push(encodedAddrFunction);
