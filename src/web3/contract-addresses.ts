@@ -58,7 +58,8 @@ const MainChainAddresses: Record<MainChain, NamespaceL1Contracts> = {
 const OffchainResolvers: Record<L2Chain, Address> = {
   arbitrum: zeroAddress,
   optimism: zeroAddress,
-  base: "0xaE04a09CF2c408803AC7718e3dE22ac346a05B58"
+  base: "0xaE04a09CF2c408803AC7718e3dE22ac346a05B58",
+  baseSepolia: "0xdf244e628c49cd61a612ce2c84516722b2051fed"
 }
 
 const L2ChainAddresses: Record<L2Chain, NamespaceL2Contracts>  = {
@@ -81,6 +82,12 @@ const L2ChainAddresses: Record<L2Chain, NamespaceL2Contracts>  = {
     emitter: zeroAddress,
     registryResolver: zeroAddress
   },
+  baseSepolia: {
+    controller: "0x316427abA8fBb45B086F5C1Fcc243F09353C97D9",
+    resolver: "0x0a31201dc15E25062E4Be297a86F5AD8DccC8055",
+    emitter: "0x8764EFC3d0b1172a3B76143b0A0E6757525Afc1f",
+    registryResolver: "0x8810B0A0946E1585Cb4ca0bB07fDC074d7038941"
+  }
 }
 
 const L2ChainAddressesLegacy: Record<L2Chain, NamespaceL2ContractsLegacy> = {
@@ -103,6 +110,12 @@ const L2ChainAddressesLegacy: Record<L2Chain, NamespaceL2ContractsLegacy> = {
     manager: zeroAddress,
     resolver: zeroAddress,
   },
+  baseSepolia: {
+    controller: zeroAddress,
+    factory: zeroAddress,
+    manager: zeroAddress,
+    resolver: zeroAddress,
+  }
 };
 
 export const EnsContracts: Record<MainChain, EnsContracts> = {
@@ -135,4 +148,3 @@ export const getEnsContracts = (chainName: MainChain) => {
 export const getOffchainResolverForL2Network = (chainName: L2Chain) => {
   return OffchainResolvers[chainName];
 }
-

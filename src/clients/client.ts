@@ -48,7 +48,6 @@ export interface NamespaceClientProperties {
   chainId: number;
   mode?: Mode;
   rpcUrl?: string;
-  walletAccount?: Account;
   mintSource?: string;
 }
 
@@ -217,7 +216,7 @@ class NamespaceClient implements INamespaceClient {
   };
 
   private setupWeb3Actions() {
-    const { walletAccount, rpcUrl, chainId, mintSource } = this.opts;
+    const { rpcUrl, chainId, mintSource } = this.opts;
     const chainName = getChainName(chainId);
     const chain = getChain(chainName);
 
@@ -225,7 +224,6 @@ class NamespaceClient implements INamespaceClient {
       chain,
       mintSource,
       rpcUrl,
-      walletAccount,
     });
   }
 

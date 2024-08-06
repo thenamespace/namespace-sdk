@@ -46,7 +46,6 @@ export interface INamespaceWeb3Actions {
 
 interface CreateWeb3ActionOpts {
   chain: Chain,
-  walletAccount?: Account,
   rpcUrl?: string,
   mintSource?: string
 }
