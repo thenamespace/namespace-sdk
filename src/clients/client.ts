@@ -1,6 +1,7 @@
 import {
   Account,
   Address,
+  createWalletClient,
   Hash,
   keccak256,
   namehash,
@@ -27,7 +28,11 @@ import {
   AuthTokenResponse,
 } from "./types/auth";
 
-type SignTypedDataFunction = ({message}: {message: any}) => Hash | Promise<Hash> 
+type SignTypedDataFunction = ({
+  message,
+}: {
+  message: any;
+}) => Hash | Promise<Hash>;
 
 export interface INamespaceClient {
   getListedName(ensName: string, chainId?: number): Promise<Listing>;
@@ -35,13 +40,17 @@ export interface INamespaceClient {
     listing: Listing,
     subnameLabel: string,
     minterAddress: Address
-  ):Promise<SimulateMintResponse>;
+  ): Promise<SimulateMintResponse>;
   getMintTransactionParameters(
     listing: Listing,
     mintRequest: MintRequest
-  ): Promise<MintTransactionParameters> 
+  ): Promise<MintTransactionParameters>;
   isSubnameAvailable(listing: Listing, subnameLabel: string): Promise<boolean>;
-  generateAuthToken(principal: Address, signingFunction: SignTypedDataFunction, signingMessage?: string): Promise<AuthTokenResponse>;
+  generateAuthToken(
+    principal: Address,
+    signingFunction: SignTypedDataFunction,
+    signingMessage?: string
+  ): Promise<AuthTokenResponse>;
 }
 
 export interface NamespaceClientProperties {
@@ -60,11 +69,11 @@ class NamespaceClient implements INamespaceClient {
     this.apiActions = createApiActions(backendApi);
     this.web3Actions = this.setupWeb3Actions();
   }
- 
+
   public async generateAuthToken(
     principal: Address,
     signTypedDataFunction: SignTypedDataFunction,
-    signingMessage?: string,
+    signingMessage?: string
   ): Promise<AuthTokenResponse> {
     const message: AuthTokenMessage = {
       app: this.opts.mintSource || "namespace-sdk",
@@ -74,7 +83,7 @@ class NamespaceClient implements INamespaceClient {
       principal,
     };
 
-    const signature = await signTypedDataFunction(message);
+    const signature = await signTypedDataFunction({message});
 
     const request: AuthTokenRequest = {
       message: message,
@@ -123,7 +132,6 @@ class NamespaceClient implements INamespaceClient {
     listing: Listing,
     mintRequest: MintRequest
   ): Promise<MintTransactionParameters> {
-  
     this.ensureValidChainForListing(listing);
     if (listing.listingType === "l2") {
       return this.l2MintParameters(listing, mintRequest);
@@ -157,7 +165,11 @@ class NamespaceClient implements INamespaceClient {
       };
     }
 
-    return this.web3Actions.getL1MintTransactionParams(params, listing.network, mintRecords);
+    return this.web3Actions.getL1MintTransactionParams(
+      params,
+      listing.network,
+      mintRecords
+    );
   }
 
   private async l2MintParameters(
@@ -174,7 +186,7 @@ class NamespaceClient implements INamespaceClient {
         owner: subnameOwner,
         parentNode: parentNode,
         registryNetwork: listing.registryNetwork as L2Chain,
-        parentLabel: listing.label
+        parentLabel: listing.label,
       },
       mintRequest.minterAddress,
       mintRequest.token
