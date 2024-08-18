@@ -26,9 +26,15 @@ import {
   AuthTokenMessage,
   AuthTokenRequest,
   AuthTokenResponse,
+  AuthTypedData
 } from "./types/auth";
 
-type SignTypedDataFunction = (signedDataParams: any) => Hash | Promise<Hash>;
+type SignTypedDataFunction = (params: {
+  message: any
+  domain: any
+  primaryType: string
+  types: any
+}) => Hash | Promise<Hash>;
 
 export interface INamespaceClient {
   getListedName(ensName: string, chainId?: number): Promise<Listing>;
@@ -79,7 +85,12 @@ class NamespaceClient implements INamespaceClient {
       principal,
     };
 
-    const signature = await signTypedDataFunction(message);
+    const signature = await signTypedDataFunction({
+      message,
+      domain: AuthTypedData.Domain,
+      primaryType: "SignIn",
+      types: AuthTypedData.Types
+    });
 
     const request: AuthTokenRequest = {
       message: message,
