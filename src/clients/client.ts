@@ -37,6 +37,8 @@ type SignTypedDataFunction = (params: {
   types: any
 }) => Hash | Promise<Hash>;
 
+type SignMessageFunction = (message: string) => Promise<Hash> 
+
 export interface INamespaceClient {
   getListedName(ensName: string, chainId?: number): Promise<Listing>;
   getMintDetails(
@@ -252,6 +254,25 @@ class NamespaceClient implements INamespaceClient {
     const baseRandomNumber = Math.floor(Math.random() * 100000);
     return keccak256(toHex(baseRandomNumber));
   };
+
+  public generateLegacyAuthToken = async (minterAddress: string, signingFunc: SignMessageFunction) => {
+
+    const nonce = await this.apiActions.getLegacyNonce();
+
+    const claims = {
+      nonce: nonce,
+      principal: minterAddress
+    }
+
+    const claimsJSON = JSON.stringify(claims);
+
+    const signature = await signingFunc(claimsJSON);
+
+    const claimsB64 = btoa(claimsJSON)
+    const signatureBase64 = btoa(signature);
+
+    return `${claimsB64}.${signatureBase64}`
+  }
 }
 
 export const createNamespaceClient = (

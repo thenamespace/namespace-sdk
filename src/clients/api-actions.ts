@@ -33,6 +33,7 @@ export interface INamespaceApiActions {
     }
   ): Promise<L1MintParamsResponse>;
   getAuthToken(request: AuthTokenRequest): Promise<AuthTokenResponse>;
+  getLegacyNonce(): Promise<string>
 }
 
 class NamespaceApiActions implements INamespaceApiActions {
@@ -47,6 +48,7 @@ class NamespaceApiActions implements INamespaceApiActions {
     }
   }
 
+ 
   public async getAuthToken(
     request: AuthTokenRequest
   ): Promise<AuthTokenResponse> {
@@ -102,7 +104,7 @@ class NamespaceApiActions implements INamespaceApiActions {
       const headers: Record<string,String> = {};
       if (token) {
         if (token.isLegacyToken) {
-          headers["Authorization"] = `Bearer ${token.value}`;
+          headers["authorization"] = token.value;
         } else {
           headers['x-auth-token'] = token.value;
         }
@@ -153,7 +155,7 @@ class NamespaceApiActions implements INamespaceApiActions {
       const headers: Record<string,String> = {};
       if (token) {
         if (token.isLegacyToken) {
-          headers["Authorization"] = `Bearer ${token.value}`;
+          headers["authorization"] = token.value;
         } else {
           headers['x-auth-token'] = token.value;
         }
@@ -186,6 +188,11 @@ class NamespaceApiActions implements INamespaceApiActions {
       )
       .then((res) => res.data);
   }
+
+  public async getLegacyNonce() {
+    return this.httpClient.get<string>(`${this.backendApi}/nonce`).then(res => res.data);
+  }
+
 }
 
 export const createApiActions = (url: string, httpClient?: AxiosInstance): INamespaceApiActions => {
