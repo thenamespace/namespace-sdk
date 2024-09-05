@@ -56,6 +56,7 @@ export interface INamespaceClient {
     signingFunction: SignTypedDataFunction,
     signingMessage?: string
   ): Promise<AuthTokenResponse>;
+  generateLegacyAuthToken (minterAddress: string, signingFunc: SignMessageFunction): Promise<string>
 }
 
 export interface NamespaceClientProperties {
