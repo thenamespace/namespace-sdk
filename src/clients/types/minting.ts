@@ -90,7 +90,10 @@ export interface MintRequest {
   subnameLabel: string;
   subnameOwner?: Address;
   minterAddress: Address;
-  token?: string;
+  token?: {
+    isLegacyToken: boolean
+    value: string
+  };
   records?: {
     addresses: AddressRecord[]
     texts: TextRecord[]

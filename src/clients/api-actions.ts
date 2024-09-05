@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 import { Listing, MainChain } from "./types";
 import { Address, namehash } from "viem";
 import {
@@ -19,23 +19,38 @@ export interface INamespaceApiActions {
   getMintingL2Parameters(
     params: L2MintParamsRequest,
     minterAddress: Address,
-    token?: string
+    token?: {
+      isLegacyToken: boolean
+      value: string
+    }
   ): Promise<L2MintParamsResponse>;
   getMintingL1Parameters(
     params: L1MintParamsRequest,
     minterAddress: Address,
-    token?: string
+    token?: {
+      isLegacyToken: boolean
+      value: string
+    }
   ): Promise<L1MintParamsResponse>;
   getAuthToken(request: AuthTokenRequest): Promise<AuthTokenResponse>;
 }
 
 class NamespaceApiActions implements INamespaceApiActions {
-  constructor(private readonly backendApi: string) {}
+
+  private httpClient: AxiosInstance
+
+  constructor(private readonly backendApi: string, private _httpClient: AxiosInstance) {
+    if (this._httpClient !== undefined) {
+      this.httpClient = _httpClient;
+    } else {
+      this.httpClient = axios.create();
+    }
+  }
 
   public async getAuthToken(
     request: AuthTokenRequest
   ): Promise<AuthTokenResponse> {
-    return axios
+    return this.httpClient
       .post<AuthTokenResponse>(`${this.backendApi}/auth`, request)
       .then((res) => res.data);
   }
@@ -45,7 +60,7 @@ class NamespaceApiActions implements INamespaceApiActions {
     network: MainChain
   ): Promise<Listing> {
     const _namehash = namehash(ensName);
-    return axios
+    return this.httpClient
       .get<Listing>(`${this.backendApi}/api/v1/listings/single`, {
         params: {
           namehash: _namehash,
@@ -58,7 +73,10 @@ class NamespaceApiActions implements INamespaceApiActions {
   public async getMintingL1Parameters(
     params: L1MintParamsRequest,
     minterAddress: Address,
-    token?: string
+    token?: {
+      isLegacyToken: boolean
+      value: string
+    }
   ): Promise<L1MintParamsResponse> {
     const result = await this.simulateMintParametersRequest({
       label: params.label,
@@ -80,16 +98,25 @@ class NamespaceApiActions implements INamespaceApiActions {
     }
 
     if (result.requiresVerifiedMinter) {
-      return axios
+
+      const headers: Record<string,String> = {};
+      if (token) {
+        if (token.isLegacyToken) {
+          headers["Authorization"] = `Bearer ${token.value}`;
+        } else {
+          headers['x-auth-token'] = token.value;
+        }
+      }
+  
+
+      return this.httpClient
         .post<L1MintParamsResponse>(`${this.backendApi}/api/v1/mint/verified`, params, {
-          headers: {
-            ["x-auth-token"]: token,
-          },
+          headers: headers as any,
         })
         .then((res) => res.data);
     }
 
-    return axios
+    return this.httpClient
       .post<L1MintParamsResponse>(`${this.backendApi}/api/v1/mint`, params)
       .then((res) => res.data);
   }
@@ -97,7 +124,10 @@ class NamespaceApiActions implements INamespaceApiActions {
   public async getMintingL2Parameters(
     params: L2MintParamsRequest,
     minterAddress: Address,
-    token?: string
+    token?: {
+      isLegacyToken: boolean
+      value: string
+    },
   ): Promise<L2MintParamsResponse> {
     const result = await this.simulateMintParametersRequest({
       label: params.label,
@@ -119,20 +149,29 @@ class NamespaceApiActions implements INamespaceApiActions {
     }
 
     if (result.requiresVerifiedMinter) {
-      return axios
+
+      const headers: Record<string,String> = {};
+      if (token) {
+        if (token.isLegacyToken) {
+          headers["Authorization"] = `Bearer ${token.value}`;
+        } else {
+          headers['x-auth-token'] = token.value;
+        }
+      }
+  
+
+      return this.httpClient
         .post<L2MintParamsResponse>(
           `${this.backendApi}/api/v2/mint/l2/verified`,
           params,
           {
-            headers: {
-              ["x-auth-token"]: token,
-            },
+            headers: headers as any
           }
         )
         .then((res) => res.data);
     }
 
-    return axios
+    return this.httpClient
       .post<L2MintParamsResponse>(`${this.backendApi}/api/v2/mint/l2`, params)
       .then((res) => res.data);
   }
@@ -140,7 +179,7 @@ class NamespaceApiActions implements INamespaceApiActions {
   public async simulateMintParametersRequest(
     request: SimulateMintRequest
   ): Promise<SimulateMintResponse> {
-    return axios
+    return this.httpClient
       .post<SimulateMintResponse>(
         `${this.backendApi}/api/v1/mint/simulate?minterAddress=${request.minter}`,
         request
@@ -149,6 +188,7 @@ class NamespaceApiActions implements INamespaceApiActions {
   }
 }
 
-export const createApiActions = (url: string): INamespaceApiActions => {
-  return new NamespaceApiActions(url);
+export const createApiActions = (url: string, httpClient?: AxiosInstance): INamespaceApiActions => {
+  //@ts-ignore
+  return new NamespaceApiActions(url, httpClient);
 };

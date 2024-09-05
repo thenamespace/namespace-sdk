@@ -28,6 +28,7 @@ import {
   AuthTokenResponse,
   AuthTypedData
 } from "./types/auth";
+import { AxiosInstance } from "axios";
 
 type SignTypedDataFunction = (params: {
   message: any
@@ -60,6 +61,7 @@ export interface NamespaceClientProperties {
   mode?: Mode;
   rpcUrl?: string;
   mintSource?: string;
+  httpClient?: AxiosInstance
 }
 
 class NamespaceClient implements INamespaceClient {
@@ -68,7 +70,7 @@ class NamespaceClient implements INamespaceClient {
 
   constructor(private readonly opts: NamespaceClientProperties) {
     const backendApi = BackendAPI[opts.mode || "production"];
-    this.apiActions = createApiActions(backendApi);
+    this.apiActions = createApiActions(backendApi, opts.httpClient);
     this.web3Actions = this.setupWeb3Actions();
   }
 
