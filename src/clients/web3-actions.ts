@@ -10,6 +10,7 @@ import {
   parseAbi,
   PublicClient,
   toHex,
+  Transport,
   zeroAddress,
 } from "viem";
 import {
@@ -39,37 +40,39 @@ export interface INamespaceWeb3Actions {
     mainChain: MainChain,
     records?: SetRecordsRequest
   ): Promise<MintTransactionParameters>;
-  
+
   isL1SubnameAvailable(fullName: string, chainId: number): Promise<boolean>;
   isL2SubnameAvailable(fullName: string, chainId: number): Promise<boolean>;
 }
 
 interface CreateWeb3ActionOpts {
-  chain: Chain,
-  rpcUrl?: string,
-  mintSource?: string
+  chain: Chain;
+  rpcUrl?: string;
+  mintSource?: string;
+  customTransport?: Transport;
 }
 
 class Web3Actions implements INamespaceWeb3Actions {
-  
-  private publicClient: any
-  
+  private publicClient: any;
+
   constructor(
     private readonly chain: Chain,
     private readonly rpcUrl?: string,
-    private readonly mintSource?: string
+    private readonly mintSource?: string,
+    private readonly customTransport?: Transport
   ) {
+    const transport: Transport = customTransport || http(this.rpcUrl);
+
     this.publicClient = createPublicClient({
-      transport: http(this.rpcUrl),
-      chain: this.chain
-    })
+      transport: transport,
+      chain: this.chain,
+    });
   }
 
   public async isL1SubnameAvailable(
     fullName: string,
     chainId: number
   ): Promise<boolean> {
-
     const chainName = getChainName(chainId);
     if (!chainName) {
       throw new Error("Unsupported chainId: " + chainId);
@@ -85,7 +88,7 @@ class Web3Actions implements INamespaceWeb3Actions {
       abi: parseAbi(["function owner(bytes32 node) external returns(address)"]),
       functionName: "owner",
       args: [namehash(fullName)],
-      address: ensContracts.registry
+      address: ensContracts.registry,
     });
     return currentOwner === zeroAddress;
   }
@@ -94,7 +97,6 @@ class Web3Actions implements INamespaceWeb3Actions {
     fullName: string,
     chainId: number
   ): Promise<boolean> {
-     
     const chainName = getChainName(chainId);
 
     if (!chainName) {
@@ -115,18 +117,22 @@ class Web3Actions implements INamespaceWeb3Actions {
     }
 
     const valueLen = splittedValue.length;
-    const parentName = `${splittedValue[valueLen - 2]}.${splittedValue[valueLen - 1]}`
+    const parentName = `${splittedValue[valueLen - 2]}.${
+      splittedValue[valueLen - 1]
+    }`;
     const parentNode = namehash(parentName);
     const subnameNode = namehash(fullName);
 
-    return await this.publicClient.readContract({
-      abi: parseAbi([
-        "function subnodeOwner(bytes32 node, bytes32 parentNode) external view returns (address)",
-      ]),
-      address: l2Contracts.registryResolver,
-      functionName: "subnodeOwner",
-      args: [subnameNode, parentNode],
-    }) === zeroAddress;
+    return (
+      (await this.publicClient.readContract({
+        abi: parseAbi([
+          "function subnodeOwner(bytes32 node, bytes32 parentNode) external view returns (address)",
+        ]),
+        address: l2Contracts.registryResolver,
+        functionName: "subnodeOwner",
+        args: [subnameNode, parentNode],
+      })) === zeroAddress
+    );
   }
 
   public async getL2MintTransactionParams(
@@ -134,7 +140,6 @@ class Web3Actions implements INamespaceWeb3Actions {
     l2Chain: L2Chain,
     records?: SetRecordsRequest
   ): Promise<MintTransactionParameters> {
-
     const { controller } = getL2ChainContracts(l2Chain);
     const { parameters: mintParameters } = params;
 
@@ -146,7 +151,6 @@ class Web3Actions implements INamespaceWeb3Actions {
     const totalPrice =
       BigInt(mintParameters.fee) + BigInt(mintParameters.price);
     const { request } = await this.publicClient.simulateContract({
-
       //@ts-ignore
       abi: L2_CONTROLLER_ABI,
       address: controller,
@@ -166,9 +170,9 @@ class Web3Actions implements INamespaceWeb3Actions {
       args: request.args,
       contractAddress: request.address,
       value: request.value,
-      chain: this.chain
-    }
-    
+      chain: this.chain,
+    };
+
     return txParams;
   }
 
@@ -177,7 +181,6 @@ class Web3Actions implements INamespaceWeb3Actions {
     mainChain: MainChain,
     records?: SetRecordsRequest
   ): Promise<MintTransactionParameters> {
-
     const { mintController } = getMainChainContracts(mainChain);
     const { parameters: mintParameters, signature } = params;
 
@@ -187,7 +190,8 @@ class Web3Actions implements INamespaceWeb3Actions {
     }
 
     let mintRequest: any;
-    const totalPrice = BigInt(mintParameters.mintFee) + BigInt(mintParameters.mintPrice);
+    const totalPrice =
+      BigInt(mintParameters.mintFee) + BigInt(mintParameters.mintPrice);
 
     if (resolverData.length === 0) {
       const { request } = await this.publicClient.simulateContract({
@@ -196,7 +200,7 @@ class Web3Actions implements INamespaceWeb3Actions {
         functionName: "mint",
         args: [mintParameters, signature],
         value: totalPrice,
-      })
+      });
       mintRequest = request;
     } else {
       const { request } = await this.publicClient.simulateContract({
@@ -205,7 +209,7 @@ class Web3Actions implements INamespaceWeb3Actions {
         functionName: "mintWithData",
         args: [mintParameters, signature, resolverData],
         value: totalPrice,
-      })
+      });
       mintRequest = request;
     }
 
@@ -215,10 +219,9 @@ class Web3Actions implements INamespaceWeb3Actions {
       args: mintRequest.args,
       contractAddress: mintRequest.address,
       value: mintRequest.value,
-      chain: this.chain
-    }
+      chain: this.chain,
+    };
   }
-
 
   private getMintSource() {
     return this.mintSource || "namespace-sdk";
@@ -276,10 +279,16 @@ class Web3Actions implements INamespaceWeb3Actions {
 
   private getPublicClient = (): PublicClient => {
     return this.publicClient;
-  }
-
+  };
 }
 
-export function createWeb3Actions(opts: CreateWeb3ActionOpts): INamespaceWeb3Actions {
-  return new Web3Actions(opts.chain, opts.rpcUrl, opts.mintSource);
+export function createWeb3Actions(
+  opts: CreateWeb3ActionOpts
+): INamespaceWeb3Actions {
+  return new Web3Actions(
+    opts.chain,
+    opts.rpcUrl,
+    opts.mintSource,
+    opts.customTransport
+  );
 }
