@@ -61,7 +61,7 @@ class Web3Actions implements INamespaceWeb3Actions {
     private readonly mintSource?: string,
     private readonly customTransport?: Transport
   ) {
-    const transport: Transport = customTransport || http(this.rpcUrl);
+    const transport: Transport = this.customTransport || http(this.rpcUrl);
 
     this.publicClient = createPublicClient({
       transport: transport,

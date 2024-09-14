@@ -1,11 +1,10 @@
 import {
-  Account,
   Address,
-  createWalletClient,
   Hash,
   keccak256,
   namehash,
   toHex,
+  Transport,
 } from "viem";
 import { BackendAPI, Mode } from "../env";
 import {
@@ -60,6 +59,7 @@ export interface NamespaceClientProperties {
   mode?: Mode;
   rpcUrl?: string;
   mintSource?: string;
+  customTransport?: Transport
 }
 
 class NamespaceClient implements INamespaceClient {
@@ -235,7 +235,7 @@ class NamespaceClient implements INamespaceClient {
   };
 
   private setupWeb3Actions() {
-    const { rpcUrl, chainId, mintSource } = this.opts;
+    const { rpcUrl, chainId, mintSource, customTransport } = this.opts;
     const chainName = getChainName(chainId);
     const chain = getChain(chainName);
 
@@ -243,6 +243,7 @@ class NamespaceClient implements INamespaceClient {
       chain,
       mintSource,
       rpcUrl,
+      customTransport: customTransport
     });
   }
 
