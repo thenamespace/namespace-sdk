@@ -60,6 +60,7 @@ export interface NamespaceClientProperties {
   rpcUrl?: string;
   mintSource?: string;
   customTransport?: Transport
+  backendUri?: string
 }
 
 class NamespaceClient implements INamespaceClient {
@@ -67,7 +68,7 @@ class NamespaceClient implements INamespaceClient {
   private web3Actions: INamespaceWeb3Actions;
 
   constructor(private readonly opts: NamespaceClientProperties) {
-    const backendApi = BackendAPI[opts.mode || "production"];
+    const backendApi = opts.backendUri ? opts.backendUri : BackendAPI[opts.mode || "production"];
     this.apiActions = createApiActions(backendApi);
     this.web3Actions = this.setupWeb3Actions();
   }
