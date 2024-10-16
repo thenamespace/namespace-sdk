@@ -32,6 +32,7 @@ interface NamespaceL2Contracts {
   resolver: Address;
   registryResolver: Address
   emitter: Address
+  namespaceController: Address
 }
 
 interface NamespaceL1Contracts {
@@ -68,25 +69,29 @@ const L2ChainAddresses: Record<L2Chain, NamespaceL2Contracts>  = {
     emitter: '0xA9EA3fbBDB2d1696dC67C5FA45D9A64Ac432888C',
     registryResolver: '0x0D8e2772B4D8d58C8a66EEc5bf77c07934b84942',
     resolver: '0x32d63B83BBA5a25f1f8aE308d7fd1F3c0b1abfA6',
+    namespaceController: zeroAddress
   },
   // currently, L2 subnames are only supported for Base chain
   optimism: {
     controller: zeroAddress,
     resolver: zeroAddress,
     emitter: zeroAddress,
-    registryResolver: zeroAddress
+    registryResolver: zeroAddress,
+    namespaceController: zeroAddress
   },
   arbitrum: {
     controller: zeroAddress,
     resolver: zeroAddress,
     emitter: zeroAddress,
-    registryResolver: zeroAddress
+    registryResolver: zeroAddress,
+    namespaceController: zeroAddress
   },
   baseSepolia: {
     controller: "0x316427abA8fBb45B086F5C1Fcc243F09353C97D9",
     resolver: "0x0a31201dc15E25062E4Be297a86F5AD8DccC8055",
     emitter: "0x8764EFC3d0b1172a3B76143b0A0E6757525Afc1f",
-    registryResolver: "0x8810B0A0946E1585Cb4ca0bB07fDC074d7038941"
+    registryResolver: "0x8810B0A0946E1585Cb4ca0bB07fDC074d7038941",
+    namespaceController: "0xE25Db034c3BF29DD61B0136F1ba6C819c7dCb506"
   }
 }
 
