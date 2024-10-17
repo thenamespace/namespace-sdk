@@ -1,6 +1,6 @@
 {
   "name": "namespace-sdk",
-  "version": "1.2.0-alpha",
+  "version": "1.2.1-alpha",
   "description": "A library for interacting with namespace contracts and apis",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

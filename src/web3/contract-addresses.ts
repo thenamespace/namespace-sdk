@@ -51,7 +51,7 @@ const L2ChainAddresses: Record<L2Chain, NamespaceL2Contracts> = {
     emitter: "0xA9EA3fbBDB2d1696dC67C5FA45D9A64Ac432888C",
     registryResolver: "0x0D8e2772B4D8d58C8a66EEc5bf77c07934b84942",
     resolver: "0x32d63B83BBA5a25f1f8aE308d7fd1F3c0b1abfA6",
-    controllerV2: "0x7d381362befC001ABeE479DE9CCbBCEeF2755828",
+    controllerV2: "0x3c79AEFd5A86062214424B3b24A8b1AEca92EC2d",
   },
   // currently, L2 subnames are only supported for Base chain
   optimism: {
@@ -73,7 +73,7 @@ const L2ChainAddresses: Record<L2Chain, NamespaceL2Contracts> = {
     resolver: "0x0a31201dc15E25062E4Be297a86F5AD8DccC8055",
     emitter: "0x8764EFC3d0b1172a3B76143b0A0E6757525Afc1f",
     registryResolver: "0x8810B0A0946E1585Cb4ca0bB07fDC074d7038941",
-    controllerV2: "0x8B2954842F18573499E40ab60FfBD6BC4F34429D",
+    controllerV2: "0xD01626e0872aE04393B69D7Bb34bAea9abC48102",
   },
 };
 
