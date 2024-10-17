@@ -1,24 +1,6 @@
 import { Address, zeroAddress } from "viem";
 import { L2Chain, MainChain } from "../clients";
 
-export const isLegacyName = (name: string) => {
-  // we have a couple of names that have remained on old contracts
-  // this is a workaround until we migrate 
-  const legacy = ["gotbased.eth","musicaw3.eth"];
-
-  const split = name.split(".");
-  if (split.length === 2) {
-    return legacy.includes(name);
-  }
-
-  if (split.length > 3) {
-    const parent = `${split[split.length - 2]}.${split[split.length - 1]}`;
-    return legacy.includes(parent);
-  }
-
-  return false;
-
-}
 
 interface NamespaceL2ContractsLegacy {
   controller: Address;
@@ -30,8 +12,9 @@ interface NamespaceL2ContractsLegacy {
 interface NamespaceL2Contracts {
   controller: Address;
   resolver: Address;
-  registryResolver: Address
-  emitter: Address
+  registryResolver: Address;
+  emitter: Address;
+  controllerV2: Address;
 }
 
 interface NamespaceL1Contracts {
@@ -59,36 +42,40 @@ const OffchainResolvers: Record<L2Chain, Address> = {
   arbitrum: zeroAddress,
   optimism: zeroAddress,
   base: "0xaE04a09CF2c408803AC7718e3dE22ac346a05B58",
-  baseSepolia: "0xdf244e628c49cd61a612ce2c84516722b2051fed"
-}
+  baseSepolia: "0xdf244e628c49cd61a612ce2c84516722b2051fed",
+};
 
-const L2ChainAddresses: Record<L2Chain, NamespaceL2Contracts>  = {
+const L2ChainAddresses: Record<L2Chain, NamespaceL2Contracts> = {
   base: {
-    controller: '0x62e5271bC935e25f6E6E48D3C8b8B88B2d483985',
-    emitter: '0xA9EA3fbBDB2d1696dC67C5FA45D9A64Ac432888C',
-    registryResolver: '0x0D8e2772B4D8d58C8a66EEc5bf77c07934b84942',
-    resolver: '0x32d63B83BBA5a25f1f8aE308d7fd1F3c0b1abfA6',
+    controller: "0x62e5271bC935e25f6E6E48D3C8b8B88B2d483985",
+    emitter: "0xA9EA3fbBDB2d1696dC67C5FA45D9A64Ac432888C",
+    registryResolver: "0x0D8e2772B4D8d58C8a66EEc5bf77c07934b84942",
+    resolver: "0x32d63B83BBA5a25f1f8aE308d7fd1F3c0b1abfA6",
+    controllerV2: "0x7d381362befC001ABeE479DE9CCbBCEeF2755828",
   },
   // currently, L2 subnames are only supported for Base chain
   optimism: {
     controller: zeroAddress,
     resolver: zeroAddress,
     emitter: zeroAddress,
-    registryResolver: zeroAddress
+    registryResolver: zeroAddress,
+    controllerV2: zeroAddress,
   },
   arbitrum: {
     controller: zeroAddress,
     resolver: zeroAddress,
     emitter: zeroAddress,
-    registryResolver: zeroAddress
+    registryResolver: zeroAddress,
+    controllerV2: zeroAddress,
   },
   baseSepolia: {
     controller: "0x316427abA8fBb45B086F5C1Fcc243F09353C97D9",
     resolver: "0x0a31201dc15E25062E4Be297a86F5AD8DccC8055",
     emitter: "0x8764EFC3d0b1172a3B76143b0A0E6757525Afc1f",
-    registryResolver: "0x8810B0A0946E1585Cb4ca0bB07fDC074d7038941"
-  }
-}
+    registryResolver: "0x8810B0A0946E1585Cb4ca0bB07fDC074d7038941",
+    controllerV2: "0x8B2954842F18573499E40ab60FfBD6BC4F34429D",
+  },
+};
 
 const L2ChainAddressesLegacy: Record<L2Chain, NamespaceL2ContractsLegacy> = {
   base: {
@@ -115,7 +102,7 @@ const L2ChainAddressesLegacy: Record<L2Chain, NamespaceL2ContractsLegacy> = {
     factory: zeroAddress,
     manager: zeroAddress,
     resolver: zeroAddress,
-  }
+  },
 };
 
 export const EnsContracts: Record<MainChain, EnsContracts> = {
@@ -135,7 +122,7 @@ export const getMainChainContracts = (chainName: MainChain) => {
 
 export const getL2ChainContracts = (chainName: L2Chain) => {
   return L2ChainAddresses[chainName];
-}
+};
 
 export const getL2ChainContractsLegacy = (chainName: L2Chain) => {
   return L2ChainAddressesLegacy[chainName];
@@ -147,4 +134,4 @@ export const getEnsContracts = (chainName: MainChain) => {
 
 export const getOffchainResolverForL2Network = (chainName: L2Chain) => {
   return OffchainResolvers[chainName];
-}
+};

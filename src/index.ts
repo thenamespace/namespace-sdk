@@ -33,5 +33,4 @@ export {
   getL2ChainContracts,
   getL2ChainContractsLegacy,
   getMainChainContracts,
-  isLegacyName,
 } from "./web3";
