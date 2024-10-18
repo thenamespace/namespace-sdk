@@ -155,7 +155,7 @@ class Web3Actions implements INamespaceWeb3Actions {
   
         //@ts-ignore
         abi: L2_CONTROLLER_ABI_V2,
-        address: controller,
+        address: controllerV2,
         functionName: "mint",
         args: [
           params.parameters,
