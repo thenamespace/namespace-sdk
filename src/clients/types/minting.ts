@@ -35,6 +35,8 @@ export interface L2MintParamsRequest {
   owner: string;
   expiryInYears?: number;
   parentLabel: string
+  verifiedMinter?: Address
+  useV2: boolean
 }
 
 export interface L2MintParameters {
@@ -45,7 +47,9 @@ export interface L2MintParameters {
   price: string;
   fee: string;
   paymentReceiver: Address;
-  nonce: string
+  nonce?: string
+  verifiedMinter?: Address
+  signatureExpiry: string
 }
 
 export interface L2MintParamsResponse {
@@ -98,7 +102,8 @@ export interface MintRequest {
     addresses: AddressRecord[]
     texts: TextRecord[]
     contenthash?: string
-  }
+  },
+  useV2?: boolean
 }
 
 export interface TextRecord {

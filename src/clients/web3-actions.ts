@@ -26,6 +26,7 @@ import {
   SetRecordsRequest,
 } from "./types/minting";
 import L2_CONTROLLER_ABI from "../web3/abi/l2-controller-abi.json";
+import L2_CONTROLLER_ABI_V2 from "../web3/abi/l2-controller-v2-abi.json";
 import L1_MINT_CONTROLLER from "../web3/abi/l1-mint-controller-abi.json";
 
 export interface INamespaceWeb3Actions {
@@ -135,7 +136,7 @@ class Web3Actions implements INamespaceWeb3Actions {
     records?: SetRecordsRequest
   ): Promise<MintTransactionParameters> {
 
-    const { controller } = getL2ChainContracts(l2Chain);
+    const { controller, controllerV2 } = getL2ChainContracts(l2Chain);
     const { parameters: mintParameters } = params;
 
     let resolverData: Hash[] = [];
@@ -145,27 +146,51 @@ class Web3Actions implements INamespaceWeb3Actions {
 
     const totalPrice =
       BigInt(mintParameters.fee) + BigInt(mintParameters.price);
-    const { request } = await this.publicClient.simulateContract({
 
-      //@ts-ignore
-      abi: L2_CONTROLLER_ABI,
-      address: controller,
-      functionName: "mint",
-      args: [
-        params.parameters,
-        params.signature,
-        resolverData,
-        toHex(this.getMintSource()),
-      ],
-      value: totalPrice,
-    });
+    let mintTxRequest:any;
+    console.log(params.parameters)
+    // if signature expiry is present, we're using v2 contracts
+    if (params.parameters.signatureExpiry) {
+      const { request } = await this.publicClient.simulateContract({
+  
+        //@ts-ignore
+        abi: L2_CONTROLLER_ABI_V2,
+        address: controller,
+        functionName: "mint",
+        args: [
+          params.parameters,
+          params.signature,
+          resolverData,
+          toHex(this.getMintSource()),
+        ],
+        value: totalPrice,
+      });
+      mintTxRequest = request;
+    } else {
+      const { request } = await this.publicClient.simulateContract({
+
+        //@ts-ignore
+        abi: L2_CONTROLLER_ABI,
+        address: controller,
+        functionName: "mint",
+        args: [
+          params.parameters,
+          params.signature,
+          resolverData,
+          toHex(this.getMintSource()),
+        ],
+        value: totalPrice,
+      });
+      mintTxRequest = request;
+    }
+    
 
     const txParams: MintTransactionParameters = {
-      abi: request.abi,
-      functionName: request.functionName,
-      args: request.args,
-      contractAddress: request.address,
-      value: request.value,
+      abi: mintTxRequest.abi,
+      functionName: mintTxRequest.functionName,
+      args: mintTxRequest.args,
+      contractAddress: mintTxRequest.address,
+      value: mintTxRequest.value,
       chain: this.chain
     }
     
