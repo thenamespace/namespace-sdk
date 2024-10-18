@@ -65,6 +65,7 @@ export interface NamespaceClientProperties {
   rpcUrl?: string;
   mintSource?: string;
   httpClient?: AxiosInstance
+  backendURL?: string
 }
 
 class NamespaceClient implements INamespaceClient {
@@ -72,7 +73,7 @@ class NamespaceClient implements INamespaceClient {
   private web3Actions: INamespaceWeb3Actions;
 
   constructor(private readonly opts: NamespaceClientProperties) {
-    const backendApi = BackendAPI[opts.mode || "production"];
+    const backendApi = opts.backendURL ? opts.backendURL : BackendAPI[opts.mode || "production"];
     this.apiActions = createApiActions(backendApi, opts.httpClient);
     this.web3Actions = this.setupWeb3Actions();
   }

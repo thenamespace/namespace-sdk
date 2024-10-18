@@ -1,6 +1,6 @@
 {
   "name": "namespace-sdk-no-axios",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "description": "A library for interacting with namespace contracts and apis",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
