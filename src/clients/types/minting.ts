@@ -35,7 +35,7 @@ export interface L2MintParamsRequest {
   owner: string;
   expiryInYears?: number;
   parentLabel: string
-  verifiedMinter?: Address
+  minterAddress?: Address
   useV2: boolean
 }
 

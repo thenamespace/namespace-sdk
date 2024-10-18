@@ -201,7 +201,7 @@ class NamespaceClient implements INamespaceClient {
         registryNetwork: listing.registryNetwork as L2Chain,
         parentLabel: listing.label,
         useV2: mintRequest.useV2 ?? false,
-        verifiedMinter: mintRequest.minterAddress
+        minterAddress: mintRequest.minterAddress
       },
       mintRequest.minterAddress,
       mintRequest.token
