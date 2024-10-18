@@ -164,6 +164,7 @@ class Web3Actions implements INamespaceWeb3Actions {
           toHex(this.getMintSource()),
         ],
         value: totalPrice,
+        account: params.parameters.verifiedMinter
       });
       mintTxRequest = request;
     } else {
