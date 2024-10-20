@@ -190,7 +190,7 @@ class NamespaceApiActions implements INamespaceApiActions {
   }
 
   public async getLegacyNonce() {
-    return this.httpClient.get<string>(`${this.backendApi}/nonce`).then(res => res.data);
+    return this.httpClient.get<string>(`${this.backendApi}/siwe/nonce`).then(res => res.data);
   }
 
 }
