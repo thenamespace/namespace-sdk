@@ -183,7 +183,6 @@ class NamespaceClient implements INamespaceClient {
   private async l2MintParameters(
     listing: Listing,
     mintRequest: MintRequest,
-    useV2?: boolean
   ): Promise<MintTransactionParameters> {
     const subnameOwner = mintRequest.subnameOwner || mintRequest.minterAddress;
 
@@ -196,7 +195,7 @@ class NamespaceClient implements INamespaceClient {
         parentNode: parentNode,
         registryNetwork: listing.registryNetwork as L2Chain,
         parentLabel: listing.label,
-        useV2: useV2,
+        useV2: true,
         minterAddress: mintRequest.minterAddress
       },
       mintRequest.minterAddress,
