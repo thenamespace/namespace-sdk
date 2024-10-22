@@ -47,7 +47,7 @@ const OffchainResolvers: Record<L2Chain, Address> = {
 
 const L2ChainAddresses: Record<L2Chain, NamespaceL2Contracts> = {
   base: {
-    controller: "0x62e5271bC935e25f6E6E48D3C8b8B88B2d483985",
+    controller: "0xa8e61891626f86ae6397217823701183de947c7d",
     emitter: "0xA9EA3fbBDB2d1696dC67C5FA45D9A64Ac432888C",
     registryResolver: "0x0D8e2772B4D8d58C8a66EEc5bf77c07934b84942",
     resolver: "0x32d63B83BBA5a25f1f8aE308d7fd1F3c0b1abfA6",
