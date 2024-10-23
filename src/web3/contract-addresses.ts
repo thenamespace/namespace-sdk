@@ -55,11 +55,11 @@ const L2ChainAddresses: Record<L2Chain, NamespaceL2Contracts> = {
   },
   // currently, L2 subnames are only supported for Base chain
   optimism: {
-    controller: zeroAddress,
-    resolver: zeroAddress,
-    emitter: zeroAddress,
-    registryResolver: zeroAddress,
-    controllerV2: zeroAddress,
+    controller: "0x5C1220C4C5D75aC2d0A2f893995b5eCec98F3Aa6",
+    resolver: "0xD8de4F5D7117BA37bA171ec9180Da798056f2CEd",
+    emitter: "0x87516B5518a6548433AB97aE59b15B1A31472F11",
+    registryResolver: "0x0798278Ff2c8aD096447B5C368Ce682118D87f63",
+    controllerV2: "0x5C1220C4C5D75aC2d0A2f893995b5eCec98F3Aa6",
   },
   arbitrum: {
     controller: zeroAddress,
