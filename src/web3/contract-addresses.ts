@@ -58,7 +58,7 @@ const MainChainAddresses: Record<MainChain, NamespaceL1Contracts> = {
 
 const OffchainResolvers: Record<L2Chain, Address> = {
   arbitrum: zeroAddress,
-  optimism: zeroAddress,
+  optimism: "0x6c384659a1365a37197d57555af0e7d941209558",
   base: "0xaE04a09CF2c408803AC7718e3dE22ac346a05B58",
   baseSepolia: "0xdf244e628c49cd61a612ce2c84516722b2051fed"
 }
