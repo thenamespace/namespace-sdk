@@ -29,6 +29,7 @@ import {
 import L2_CONTROLLER_ABI from "../web3/abi/l2-controller-abi.json";
 import L1_MINT_CONTROLLER from "../web3/abi/l1-mint-controller-abi.json";
 import L1_MINT_CONROLLER_V2 from "../web3/abi/l2-controller-v2-abi.json";
+import { getCoderByCoinType } from "@ensdomains/address-encoder";
 
 export interface INamespaceWeb3Actions {
   getL2MintTransactionParams(
@@ -151,52 +152,30 @@ class Web3Actions implements INamespaceWeb3Actions {
     
     const totalPrice =
       BigInt(mintParameters.fee) + BigInt(mintParameters.price);
-    // v2 controller uses signature expiry parameters
-    let mintRequest: any;
-    if (params.parameters.signatureExpiry) {
-      const { request } = await this.publicClient.simulateContract({
-        //@ts-ignore
-        abi: L1_MINT_CONROLLER_V2,
-        address: controllerV2,
-        functionName: "mint",
-        args: [
-          params.parameters,
-          params.signature,
-          resolverData,
-          toHex(this.getMintSource()),
-        ],
-        value: totalPrice,
-        account: params.parameters.verifiedMinter
-      });
-      mintRequest = request;
-    } else {
-      const { request } = await this.publicClient.simulateContract({
-        //@ts-ignore
-        abi: L2_CONTROLLER_ABI,
-        address: controller,
-        functionName: "mint",
-        args: [
-          params.parameters,
-          params.signature,
-          resolverData,
-          toHex(this.getMintSource()),
-        ],
-        value: totalPrice,
-      });
-      mintRequest = request;
-    }
+    const { request } = await this.publicClient.simulateContract({
+      //@ts-ignore
+      abi: L1_MINT_CONROLLER_V2,
+      address: controllerV2,
+      functionName: "mint",
+      args: [
+        params.parameters,
+        params.signature,
+        resolverData,
+        toHex(this.getMintSource()),
+      ],
+      value: totalPrice,
+      account: params.parameters.verifiedMinter
+    });
 
 
-    const txParams: MintTransactionParameters = {
-      abi: mintRequest.abi,
-      functionName: mintRequest.functionName,
-      args: mintRequest.args,
-      contractAddress: mintRequest.address,
-      value: mintRequest.value,
+    return {
+      abi: request.abi,
+      functionName: request.functionName,
+      args: request.args,
+      contractAddress: request.address,
+      value: request.value,
       chain: this.chain,
     };
-
-    return txParams;
   }
 
   public async getL1MintTransactionParams(
@@ -276,14 +255,20 @@ class Web3Actions implements INamespaceWeb3Actions {
         });
         data.push(encodedAddrFunction);
       } else {
-        const encodedAddrFunction = encodeFunctionData({
-          abi: parseAbi([
-            "function setAddr(bytes32 node, uint256 coinType, bytes newAddress)",
-          ]),
-          functionName: "setAddr",
-          args: [subnameNode, BigInt(addr.coinType), addr.address as Hash],
-        });
-        data.push(encodedAddrFunction);
+        const addressCoder = getCoderByCoinType(addr.coinType);
+        if (addressCoder) {
+          const addressValue = toHex(addressCoder.decode(addr.address))
+          const encodedAddrFunction = encodeFunctionData({
+            abi: parseAbi([
+              "function setAddr(bytes32 node, uint256 coinType, bytes newAddress)",
+            ]),
+            functionName: "setAddr",
+            args: [subnameNode, BigInt(addr.coinType), addressValue],
+          });
+          data.push(encodedAddrFunction);
+        } else {
+          throw Error("Could not find address coder for coinType: " + addr.coinType)
+        }
       }
     });
 
