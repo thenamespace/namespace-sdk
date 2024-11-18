@@ -94,6 +94,7 @@ export interface MintRequest {
   subnameLabel: string;
   subnameOwner?: Address;
   minterAddress: Address;
+  expiryInYears?: number
   token?: string;
   records?: {
     addresses: AddressRecord[]
