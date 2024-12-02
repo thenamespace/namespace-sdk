@@ -27,6 +27,11 @@ interface EnsContracts {
   registry: Address;
 }
 
+const HybridResolverAddresses: Record<MainChain, Address> = {
+  mainnet: "0x0dcD506D1Be162E50A2b434028A9a148F2686444",
+  sepolia: "0x2F5E9E8B4495e4CDC5bC6C5FCBa93B8AaBDeF595"
+}
+
 const MainChainAddresses: Record<MainChain, NamespaceL1Contracts> = {
   mainnet: {
     listController: "0xD75707Df440Aae28BbF243855Fcb4D62c366EfD6",
@@ -53,7 +58,6 @@ const L2ChainAddresses: Record<L2Chain, NamespaceL2Contracts> = {
     resolver: "0x32d63B83BBA5a25f1f8aE308d7fd1F3c0b1abfA6",
     controllerV2: "0xa8e61891626f86ae6397217823701183de947c7d",
   },
-  // currently, L2 subnames are only supported for Base chain
   optimism: {
     controller: "0x5C1220C4C5D75aC2d0A2f893995b5eCec98F3Aa6",
     resolver: "0xD8de4F5D7117BA37bA171ec9180Da798056f2CEd",
@@ -135,3 +139,7 @@ export const getEnsContracts = (chainName: MainChain) => {
 export const getOffchainResolverForL2Network = (chainName: L2Chain) => {
   return OffchainResolvers[chainName];
 };
+
+export const getHybridResolver = (chainName: MainChain) => {
+  return HybridResolverAddresses[chainName];
+}
