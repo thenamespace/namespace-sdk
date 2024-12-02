@@ -1,9 +1,9 @@
 ![Namespace Ninja](https://namespace.fra1.cdn.digitaloceanspaces.com/brand/logo_small.png)
 # Namespace-SDK
 
-A Typescript library used to interact with Namespace contracts and apis. 
+A Typescript library used to interact with Namespace contracts and APIs. 
 It uses Viem under the hood and can be used to:
-* Find names listed on Namespace platform
+* Find names listed on the Namespace platform
 * Check the availability of subnames
 * Mint subnames
 
@@ -11,7 +11,7 @@ This is the initial version, expect many more functionalities in the future!
 
 # Installation
 
-Use a package manager to install library into your project
+Use a package manager to install the library into your project
 
 Yarn
 ```bash
@@ -24,9 +24,9 @@ npm install namespace-sdk
 
 # Getting started
 
-First we can create a simple NamespaceClient and specify the chainId. The chain id specifies a chain on which read/write blockchain operations happen. If we list our name on a Mainnet and subnames are minted on Mainnet, we'll have to specify a chainId 1. We will use a sepolia testnet in the example.
+First, we can create a simple NamespaceClient and specify the chainID. The chain id specifies a chain on which read/write blockchain operations happen. If we list our name on a Mainnet and subnames are minted on Mainnet, we'll have to specify a chainID 1. We will use a sepolia testnet as an example.
 
-The chainId is required since the library supports minting subnames on both Layer 1 and its testnet (Sepolia) but also on the Layer 2 ( Currently, only Base chain is supported )
+The chainID is required since the library supports minting subnames on both Layer 1 and its testnet (Sepolia) but also on Layer 2 (currently, only Base chain is supported).
 
 ```typescript
 import { createNamespaceClient } from "namespace-sdk";
@@ -42,13 +42,13 @@ Minting ENS subnames requires a couple of steps.
 
 ## 1. Listing an ENS name
 
-First, we would need to have an ENS name which is listed on Namespace platform. To do so, visit our [Platform](https://app.namespace.tech) and check 
+First, we would need to have an ENS name that is listed on the Namespace platform. To do so, visit our [Platform](https://app.namespace.tech) and check 
 [Manager](https://docs.namespace.tech/namespace-platform/manager)
 
-For testing purposes, you can use "namespace-sdk.eth" on Sepolia chain.
+For testing purposes, you can use "namespace-sdk.eth" on the Sepolia chain.
 ## 2. Generate minting parameters
 
-After we list ENS name, our platform allows minting subnames under it. We can use a library to check for subname availability and to generate a mint transaction parameters.
+After we list the ENS name, our platform allows minting subnames under it. We can use a library to check for subname availability and to generate mint transaction parameters.
 
 ```typescript
 import { createNamespaceClient, SetRecordsRequest, MintTransactionParameters } from "namespace-sdk";
