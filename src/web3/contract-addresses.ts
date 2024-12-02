@@ -134,6 +134,11 @@ export const EnsContracts: Record<MainChain, EnsContracts> = {
   },
 };
 
+const HybridResolverAddresses: Record<MainChain, Address> = {
+  mainnet: "0x0dcD506D1Be162E50A2b434028A9a148F2686444",
+  sepolia: "0x2F5E9E8B4495e4CDC5bC6C5FCBa93B8AaBDeF595"
+}
+
 export const getMainChainContracts = (chainName: MainChain) => {
   return MainChainAddresses[chainName];
 };
@@ -152,4 +157,8 @@ export const getEnsContracts = (chainName: MainChain) => {
 
 export const getOffchainResolverForL2Network = (chainName: L2Chain) => {
   return OffchainResolvers[chainName];
+}
+
+export const getHybridResolver = (chainName: MainChain) => {
+  return HybridResolverAddresses[chainName];
 }
