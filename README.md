@@ -1,32 +1,45 @@
 ![Namespace Ninja](https://namespace.fra1.cdn.digitaloceanspaces.com/brand/logo_small.png)
 # Namespace-SDK
 
-A Typescript library used to interact with Namespace contracts and APIs. 
-It uses Viem under the hood and can be used to:
-* Find names listed on the Namespace platform
-* Check the availability of subnames
-* Mint subnames
+A TypeScript SDK for interacting with Namespace - a platform for managing ENS names and subnames. Built on top of [Viem](https://viem.sh), this SDK enables you to:
+* List and manage ENS subnames on the Namespace platform
+* Check subname availability across multiple chains
+* Mint ENS subnames with custom records
+* Interact with Namespace smart contracts
 
-This is the initial version, expect many more functionalities in the future!
+> **Note**: This project is in early stages and is under active development.
 
 # Installation
 
-Use a package manager to install the library into your project
+Install using your preferred package manager:
 
-Yarn
 ```bash
+# pnpm
+pnpm add namespace-sdk
+
+# npm
+npm install namespace-sdk
+
+# yarn
 yarn add namespace-sdk
 ```
-Npm
-```bash
-npm install namespace-sdk
-```
+**Note**: We recommend using [pnpm](https://pnpm.io/) due to its better performance and smaller bundle size.
 
-# Getting started
+# Usage
 
-First, we can create a simple NamespaceClient and specify the chainID. The chain id specifies a chain on which read/write blockchain operations happen. If we list our name on a Mainnet and subnames are minted on Mainnet, we'll have to specify a chainID 1. We will use a sepolia testnet as an example.
+## Prerequisites
 
-The chainID is required since the library supports minting subnames on both Layer 1 and its testnet (Sepolia) but also on Layer 2 (currently, only Base chain is supported).
+### Listing an ENS Name
+
+Before minting subnames, you need to list your ENS name on the [Namespace platform](https://app.namespace.tech).
+
+You can find the required steps by following the [Manager Guide](https://docs.namespace.tech/namespace-platform/manager/listing-an-ens-name#listing-an-ens-name)
+
+## Using the SDK
+
+### Initialize the Client
+
+Create a NamespaceClient instance by specifying the chain you want to interact with.
 
 ```typescript
 import { createNamespaceClient } from "namespace-sdk";
@@ -36,29 +49,35 @@ const namespaceClient = createNamespaceClient({
   chainId: sepolia.id
 });
 ```
-# Minting a subname
 
-Minting ENS subnames requires a couple of steps. 
+Currently, we support the following chains:
+- Ethereum Mainnet 
+- Sepolia Testnet 
+- Base 
+- Base Sepolia Testnet 
+- Optimism 
+- Arbitrum 
 
-## 1. Listing an ENS name
+**Note**: We are actively working on adding support for more chains.
 
-First, we would need to have an ENS name that is listed on the Namespace platform. To do so, visit our [Platform](https://app.namespace.tech) and check 
-[Manager](https://docs.namespace.tech/namespace-platform/manager)
+### Minting ENS Subnames
 
-For testing purposes, you can use "namespace-sdk.eth" on the Sepolia chain.
-## 2. Generate minting parameters
-
-After we list the ENS name, our platform allows minting subnames under it. We can use a library to check for subname availability and to generate mint transaction parameters.
-
+The minting process consists of two main steps:
+1. Check subname availability and generate the required transaction parameters:
 ```typescript
-import { createNamespaceClient, SetRecordsRequest, MintTransactionParameters } from "namespace-sdk";
+// Import the Namespace SDK and Viem chains
+import { createNamespaceClient, MintTransactionParameters } from "namespace-sdk";
 import { sepolia } from "viem/chains";
 
+// Initialize the Namespace SDK client
 const namespaceClient = createNamespaceClient({
   chainId: sepolia.id,
 });
 
+// Define the listed name from the [Namespace Platform](https://docs.namespace.tech/namespace-platform/manager/listing-an-ens-name#listing-an-ens-name) in the previous step
 const LISTED_NAME = "namespace-sdk.eth"
+
+// Define the ETH coin type
 const ETH_COIN_TYPE = 60;
 
 const generateMintingParameters = async (): Promise<MintTransactionParameters> => {
@@ -69,6 +88,7 @@ const generateMintingParameters = async (): Promise<MintTransactionParameters> =
     sepolia.id
   );
 
+  // Define the subname label and minter address
   const subnameLabel = "myfunnylabel";
   const minterAddress = "0x6CaBE5E77F90d58600A3C13127Acf6320Bee0aA7"
 
@@ -106,8 +126,10 @@ const generateMintingParameters = async (): Promise<MintTransactionParameters> =
   return mintDetails;
 };
 ```
-## 3. Send Transaction
-Sending a transaction is the last step. Since the library uses Viem under the hood, we will use WalletClient to send a transaction.
+
+2. Execute the Mint Transaction
+
+Use Viem's WalletClient to send the transaction:
 
 ```typescript
 import { sepolia } from "viem/chains";
@@ -140,5 +162,14 @@ const sendMintTransaction = async () => {
     console.log(transactionHash);
 }
 ```
+
+## Contributing
+
+Contributions are welcome! Please read our [contributing guidelines](CONTRIBUTING.md) before submitting PRs.
+
+## License
+
+MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## Authors
-[artii.eth](https://github.com/nenadmitt)
+- [artii.eth](https://github.com/nenadmitt)

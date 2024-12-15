@@ -2,22 +2,21 @@ import { L2Chain, MainChain } from "."
 import { Address } from "viem"
 
 export interface ListingRequest {
-    listingType?: ListingType
-    network: MainChain
-    tokenNetwork?: L2Chain
-    owner?: Address
-    page?: number
-    size?: number
+  listingType?: ListingType
+  network: MainChain
+  tokenNetwork?: L2Chain
+  owner?: Address
+  page?: number
+  size?: number
 }
 
 export interface Listing {
-    label: string;
-    fullName: string;
-    node: string;
-    network: MainChain;
-    listingType?: ListingType
-    registryNetwork?: L2Chain 
+  label: string;
+  fullName: string;
+  node: string;
+  network: MainChain;
+  listingType?: ListingType
+  registryNetwork?: L2Chain
 }
-
 
 export type ListingType = "sellUnruggable" | "l2"
