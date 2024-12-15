@@ -77,9 +77,6 @@ const namespaceClient = createNamespaceClient({
 // Define the listed name from the [Namespace Platform](https://docs.namespace.tech/namespace-platform/manager/listing-an-ens-name#listing-an-ens-name) in the previous step
 const LISTED_NAME = "namespace-sdk.eth"
 
-// Define the ETH coin type
-const ETH_COIN_TYPE = 60;
-
 const generateMintingParameters = async (): Promise<MintTransactionParameters> => {
 
   // Get listed name from namespace api
@@ -107,21 +104,6 @@ const generateMintingParameters = async (): Promise<MintTransactionParameters> =
     minterAddress: minterAddress,
     subnameLabel: subnameLabel,
     subnameOwner: minterAddress,
-    // Optionaly, we can also set resolver records with the mint transaction
-    records: {
-        addresses: [
-            {
-                address: minterAddress,
-                coinType: ETH_COIN_TYPE
-            }
-        ],
-        texts: [
-            {
-                key: "name",
-                value: "namespace"
-            }
-        ]
-    }
   });
   return mintDetails;
 };
