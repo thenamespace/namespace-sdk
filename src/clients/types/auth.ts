@@ -16,16 +16,16 @@ const Types = {
 };
 
 export interface AuthTokenMessage {
-    app: string
-    issued: number,
-    message: string,
-    nonce: string,
-    principal: Address,
+  app: string
+  issued: number,
+  message: string,
+  nonce: string,
+  principal: Address,
 }
 
 export interface AuthTokenResponse {
-    accessToken: string
-    refreshToken: string
+  accessToken: string
+  refreshToken: string
 }
 
 export interface AuthTokenRequest {
@@ -34,6 +34,6 @@ export interface AuthTokenRequest {
 }
 
 export const AuthTypedData = {
-    Domain,
-    Types
+  Domain,
+  Types,
 }
