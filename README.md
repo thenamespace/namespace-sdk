@@ -2,7 +2,7 @@
 # Namespace-SDK
 
 A TypeScript SDK for interacting with Namespace - a platform for managing ENS names and subnames. Built on top of [Viem](https://viem.sh), this SDK enables you to:
-* List and manage ENS subnames on the Namespace platform
+* List and manage ENS subnames
 * Check subname availability across multiple chains
 * Mint ENS subnames with custom records
 * Interact with Namespace smart contracts
@@ -45,6 +45,7 @@ Create a NamespaceClient instance by specifying the chain you want to interact w
 import { createNamespaceClient } from "namespace-sdk";
 import { sepolia } from "viem/chains";
 
+// Initialize the Namespace SDK client
 const namespaceClient = createNamespaceClient({
   chainId: sepolia.id
 });
@@ -77,6 +78,12 @@ const namespaceClient = createNamespaceClient({
 // Define the listed name from the [Namespace Platform](https://docs.namespace.tech/namespace-platform/manager/listing-an-ens-name#listing-an-ens-name) in the previous step
 const LISTED_NAME = "namespace-sdk.eth"
 
+// Define the subname to be minted
+const SUBNAME_LABEL = "subname"
+
+// Define the minter address
+const MINTER_ADDRESS = "0xbe02d5ceAB7296A4E8b516eee578Be75983674e9"
+
 const generateMintingParameters = async (): Promise<MintTransactionParameters> => {
 
   // Get listed name from namespace api
@@ -85,25 +92,21 @@ const generateMintingParameters = async (): Promise<MintTransactionParameters> =
     sepolia.id
   );
 
-  // Define the subname label and minter address
-  const subnameLabel = "myfunnylabel";
-  const minterAddress = "0x6CaBE5E77F90d58600A3C13127Acf6320Bee0aA7"
-
   // Check for name availability
   const isNotTaken = await namespaceClient.isSubnameAvailable(
     listedName,
-    subnameLabel
+    SUBNAME_LABEL
   );
-  
+
   if (!isNotTaken) {
     throw Error("Subname is already taken!");
   }
 
    // Generate mint transcation parameters
   const mintDetails = await namespaceClient.getMintTransactionParameters(listedName, {
-    minterAddress: minterAddress,
-    subnameLabel: subnameLabel,
-    subnameOwner: minterAddress,
+    minterAddress: MINTER_ADDRESS,
+    subnameLabel: SUBNAME_LABEL,
+    subnameOwner: MINTER_ADDRESS,
   });
   return mintDetails;
 };
@@ -114,36 +117,109 @@ const generateMintingParameters = async (): Promise<MintTransactionParameters> =
 Use Viem's WalletClient to send the transaction:
 
 ```typescript
+// Import your wallet and create a Viem Wallet Client
+const wallet = privateKeyToAccount("0xYOUR_PRIVATE_KEY_HERE");
+const walletClient = createWalletClient({
+  transport: http(),
+  chain: sepolia,
+  account: wallet,
+})
+
+// Generate minting parameters
+const mintParams = await generateMintingParameters();
+
+// Send transaction
+const transactionHash = await walletClient.writeContract({
+  abi: mintParams.abi,
+  address: mintParams.contractAddress,
+  functionName: mintParams.functionName,
+  args: mintParams.args,
+  value: mintParams.value,
+})
+
+console.log(transactionHash);
+```
+
+Full example:
+```typescript
+// Import the Namespace SDK and Viem chains
+import { createNamespaceClient, MintTransactionParameters } from "namespace-sdk";
 import { sepolia } from "viem/chains";
 import { privateKeyToAccount } from "viem/accounts";
 import { createWalletClient, http } from "viem";
-import { generateMintingParameters } from "./minting";
 
-const sendMintTransaction = async () => {
+// Initialize the Namespace SDK client
+const namespaceClient = createNamespaceClient({
+  chainId: sepolia.id,
+});
 
-    // Import your wallet and create a Viem Wallet Client
-    const wallet = privateKeyToAccount("0xYourWallet");
-    const walletClient = createWalletClient({
-        transport: http(),
-        chain: sepolia,
-        account: wallet
-    })
+// Define the listed name from the [Namespace Platform](https://docs.namespace.tech/namespace-platform/manager/listing-an-ens-name#listing-an-ens-name) in the previous step
+const LISTED_NAME = "namespace-sdk.eth"
 
-    // Generate minting parameters
-    const mintParams = await generateMintingParameters();
+// Define the subname to be minted
+const SUBNAME_LABEL = "subname"
 
-    // Send transaction
-    const transactionHash = await walletClient.writeContract({
-        abi: mintParams.abi,
-        address: mintParams.contractAddress,
-        functionName: mintParams.functionName,
-        args: mintParams.args,
-        value: mintParams.value
-    })
+// Define the minter address
+const MINTER_ADDRESS = "0xbe02d5ceAB7296A4E8b516eee578Be75983674e9"
 
-    console.log(transactionHash);
-}
+const generateMintingParameters = async (): Promise<MintTransactionParameters> => {
+
+  // Get listed name from namespace api
+  const listedName = await namespaceClient.getListedName(
+    LISTED_NAME,
+    sepolia.id
+  );
+
+  // Check for name availability
+  const isNotTaken = await namespaceClient.isSubnameAvailable(
+    listedName,
+    SUBNAME_LABEL
+  );
+
+  if (!isNotTaken) {
+    throw Error("Subname is already taken!");
+  }
+
+   // Generate mint transcation parameters
+  const mintDetails = await namespaceClient.getMintTransactionParameters(listedName, {
+    minterAddress: MINTER_ADDRESS,
+    subnameLabel: SUBNAME_LABEL,
+    subnameOwner: MINTER_ADDRESS,
+  });
+  return mintDetails;
+};
+
+// Import your wallet and create a Viem Wallet Client
+const wallet = privateKeyToAccount("0xYOUR_PRIVATE_KEY_HERE");
+const walletClient = createWalletClient({
+  transport: http(),
+  chain: sepolia,
+  account: wallet,
+})
+
+// Generate minting parameters
+const mintParams = await generateMintingParameters();
+
+// Send transaction
+const transactionHash = await walletClient.writeContract({
+  abi: mintParams.abi,
+  address: mintParams.contractAddress,
+  functionName: mintParams.functionName,
+  args: mintParams.args,
+  value: mintParams.value,
+})
+
+console.log(transactionHash);
 ```
+**Note**: We recommend setting a custom RPC URL for the chain you are interacting with. You can do so by adding an argument to the http() function:
+```typescript
+const walletClient = createWalletClient({
+  transport: http('https://eth-sepolia.g.alchemy.com/v2/ALCHEMY_API_KEY'),
+  chain: sepolia,
+  account: wallet,
+})
+```
+
 
 ## Contributing
 
